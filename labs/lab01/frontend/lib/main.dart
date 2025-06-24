@@ -3,12 +3,27 @@ import 'package:frontend/counter_app.dart';
 import 'package:frontend/profile_card.dart';
 import 'package:frontend/registration_form.dart';
 
+
 void main() {
   runApp(const MyApp());
 }
 
+class CounterAppDisplay extends StatelessWidget { // Is a full screen widget that wraps the CounterApp into a standard screen layout with app bar and center positioning.
+  const CounterAppDisplay({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Counter App Display')),
+      body: const Center(child: CounterApp()),
+    );
+  }
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
+
 
   // This widget is the root of your application.
   @override
@@ -76,7 +91,21 @@ class MyHomePage extends StatelessWidget {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            const CounterApp(),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size(280, 80),
+                textStyle: TextStyle(fontSize: 28),
+                backgroundColor: const Color.fromARGB(255, 187, 125, 44),
+                foregroundColor: Colors.black,
+              ),
+              child: const Text('Counter',),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const CounterAppDisplay()),
+                );
+              },
+            ),
             const SizedBox(height: 24),
             const Text(
               'Registration Form Example',
