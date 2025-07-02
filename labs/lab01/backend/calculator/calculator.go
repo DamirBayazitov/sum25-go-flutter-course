@@ -30,7 +30,7 @@ func Multiply(a, b float64) float64 {
 func Divide(a, b float64) (float64, error) {
 	// TODO: Implement this function
 	if b == 0 {
-		return 0, ErrDivisionByZero
+		return 0, ErrDivisionByZero // returning error message as the denominator equals zero
 	}
 	return a / b, nil
 }
@@ -38,8 +38,8 @@ func Divide(a, b float64) (float64, error) {
 // StringToFloat converts a string to float64
 func StringToFloat(s string) (float64, error) {
 	// TODO: Implement this function
-	number, err := strconv.ParseFloat(s, 64)
-	if err != nil {
+	number, err := strconv.ParseFloat(s, 64) // converting from the string type to the float64 type
+	if err != nil {                          // if the error was detected then we return the corresponding message
 		return 0, err
 	}
 	return number, nil
@@ -48,6 +48,6 @@ func StringToFloat(s string) (float64, error) {
 // FloatToString converts a float64 to string with specified precision
 func FloatToString(f float64, precision int) string {
 	// TODO: Implement this function
-	s := strconv.FormatFloat(f, 'f', precision, 64)
+	s := strconv.FormatFloat(f, 'f', precision, 64) // converting from the float64 type format to the string
 	return s
 }
