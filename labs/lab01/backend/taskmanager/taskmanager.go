@@ -30,7 +30,7 @@ type TaskManager struct {
 func NewTaskManager() *TaskManager {
 	// TODO: Implement this function
 	return &TaskManager{
-		tasks:  make(map[int]*Task),
+		tasks:  make(map[int]Task),
 		nextID: 1,
 	}
 }
@@ -38,7 +38,15 @@ func NewTaskManager() *TaskManager {
 // AddTask adds a new task to the manager, returns an error if the title is empty, and increments the nextID
 func (tm *TaskManager) AddTask(title, description string) (Task, error) {
 	// TODO: Implement this function
-	return Task{}, nil
+	if title == "" {
+		return Task{}, ErrEmptyTitle
+	}
+	t := Task{}
+	t.Title = title
+	t.Description = description
+	t.CreatedAt = time.Now()
+	tm.tasks[tm.nextID] = t
+	return tm.tasks[tm.nextID], nil
 }
 
 // UpdateTask updates an existing task, returns an error if the title is empty or the task is not found
@@ -51,10 +59,12 @@ func (tm *TaskManager) UpdateTask(id int, title, description string, done bool) 
 	if title == "" { // if the title is empty, then we return an error message
 		return ErrEmptyTitle
 	}
-	tm.tasks[id].Title = title
-	tm.tasks[id].Description = description
-	tm.tasks[id].Done = done
-	tm.tasks[id].ID = id
+	task := tm.tasks[id]
+	task.Title = title
+	task.Description = description
+	task.Done = done
+	task.ID = id
+	tm.tasks[id] = task
 	return nil
 }
 
@@ -72,13 +82,17 @@ func (tm *TaskManager) DeleteTask(id int) error {
 // GetTask retrieves a task by ID, returns an error if the task is not found
 func (tm *TaskManager) GetTask(id int) (Task, error) {
 	// TODO: Implement this function
-	return Task{}, nil
+	_, found := tm.tasks[id]
+	if !found {
+		return Task{}, ErrTaskNotFound
+	}
+	return tm.tasks[id], nil
 }
 
 // ListTasks returns all tasks, optionally filtered by done status, returns an empty slice if no tasks are found
 func (tm *TaskManager) ListTasks(filterDone *bool) []Task {
 	// TODO: Implement this function
-	var tasks []*Task = []*Task{}
+	var tasks []Task = []Task{}
 	for _, value := range tm.tasks {
 		if value.Done == *filterDone {
 			tasks = append(tasks, value)
