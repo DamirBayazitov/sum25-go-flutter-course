@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 204, 27, 27)),
         useMaterial3: true,
       ),
       home: const MyHomePage(),
@@ -59,7 +59,7 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
+    return DefaultTabController( 
       length: 3,
       child: Scaffold(
         appBar: AppBar(
@@ -79,7 +79,7 @@ class MyHomePage extends StatelessWidget {
               child: SingleChildScrollView(
                 padding: EdgeInsets.all(16.0),
                 // TODO: change to ProfileCard
-                child: SizedBox.shrink(),
+                child: ProfileCard(name: "", email: "damir07.kazan@gmail.com", age: 18, avatarUrl: null,)
               ),
             ),
             CounterApp(),
