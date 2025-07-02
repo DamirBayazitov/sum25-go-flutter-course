@@ -38,7 +38,7 @@ func Divide(a, b float64) (float64, error) {
 // StringToFloat converts a string to float64
 func StringToFloat(s string) (float64, error) {
 	// TODO: Implement this function
-	number, err := strconv.ParseFloat(s, 64) // converting from the type string to the float64 type
+	number, err := strconv.ParseFloat(s, 64) // converting from the type string to the type float64
 	if err != nil {                          // if the error was detected then we return the corresponding message
 		return 0, err
 	}
