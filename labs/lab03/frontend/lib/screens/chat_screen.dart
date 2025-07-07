@@ -32,42 +32,58 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _loadMessages() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
-    try {
-      final messages = await _apiService.getMessages();
-      setState(() => _messages.clear());
-      setState(() => _messages.addAll(messages));
-    } catch (e) {
-      setState(() => _error = e.toString());
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
+  setState(() {
+    _isLoading = true;
+    _error = null;
+  });
 
-  Future<void> _sendMessage() async {
-    final username = _usernameController.text.trim();
-    final content = _messageController.text.trim();
-    if (username.isEmpty || content.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Username and content can't be empty")),
-      );
-      return;
-    }
-    try {
-      final message = await _apiService.createMessage(
-        CreateMessageRequest(username: username, content: content),
-      );
-      setState(() => _messages.add(message));
-      _messageController.clear();
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
-    }
+  try {
+    final messages = await _apiService.getMessages();
+    setState(() {
+      _messages.clear();
+      _messages.addAll(messages);
+      _isLoading = false;
+    });
+  } catch (e) {
+    setState(() {
+      _error = 'Failed to load messages';
+      _isLoading = false;
+    });
   }
+}
+
+
+  void _sendMessage() async {
+  final username = _usernameController.text.trim();
+  final content = _messageController.text.trim();
+
+  if (username.isEmpty || content.isEmpty) return;
+
+  try {
+    await _apiService.createMessage(
+      CreateMessageRequest(username: username, content: content),
+    );
+    _messageController.clear();
+      ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Message sent successfully!')),
+    );
+
+    _loadMessages(); // reloads messages after send
+  } catch (e) {
+    setState(() => _error = 'Failed to send message');
+  }
+}
+
+void _checkStatus(int code) {
+  showDialog(
+    context: context,
+    builder: (_) => AlertDialog(
+      title: Text('HTTP Status: $code'),
+      content: Image.network('http://localhost:8080/api/cat/$code'),
+    ),
+  );
+}
+
 
   Future<void> _editMessage(Message message) async {
     final controller = TextEditingController(text: message.content);
@@ -164,7 +180,7 @@ class _ChatScreenState extends State<ChatScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
+              child: const Text('200 OK'),
             ),
           ],
         ),
@@ -201,15 +217,18 @@ class _ChatScreenState extends State<ChatScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           TextField(
-            key: const Key('usernameField'),
             controller: _usernameController,
-            decoration: const InputDecoration(labelText: 'Enter your username'),
+            decoration: const InputDecoration(
+              labelText: 'Enter your username', 
+            ),
           ),
           TextField(
-            key: const Key('messageField'),
             controller: _messageController,
-            decoration: const InputDecoration(labelText: 'Enter your message'),
+            decoration: const InputDecoration(
+              labelText: 'Enter your message',
+            ),
           ),
+
           Row(
             children: [
               ElevatedButton(
@@ -258,28 +277,101 @@ class _ChatScreenState extends State<ChatScreen> {
     return const Center(child: CircularProgressIndicator());
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('REST API Chat'),
-        actions: [IconButton(onPressed: _loadMessages, icon: const Icon(Icons.refresh))],
-      ),
-      body: _isLoading
-          ? _buildLoadingWidget()
-          : _error != null
-              ? _buildErrorWidget()
-              : _messages.isEmpty
-                  ? const Center(child: Text('No messages yet'))
-                  : ListView.builder(
-                      itemCount: _messages.length,
-                      itemBuilder: (_, i) => _buildMessageTile(_messages[i]),
-                    ),
-      bottomSheet: _buildMessageInput(),
-      floatingActionButton: FloatingActionButton(
-      onPressed: _loadMessages, // same function as AppBar refresh
-      child: const Icon(Icons.refresh),
+@override
+Widget build(BuildContext context) {
+  if (_error != null) {
+  return Center(
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Icon(Icons.error_outline),
+        const SizedBox(height: 8),
+        const Text('Something went wrong'),
+        ElevatedButton(
+          onPressed: _loadMessages, // Retry logic
+          child: const Text('Retry'),
+        ),
+      ],
     ),
-    );
-  }
+  );
 }
+
+  return Scaffold(
+    appBar: AppBar(title: const Text('Chat')),
+    body: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          TextField(
+            key: const Key('usernameField'),
+            controller: _usernameController,
+            decoration: const InputDecoration(
+              labelText: 'Enter your username',
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            key: const Key('messageField'),
+            controller: _messageController,
+            decoration: const InputDecoration(
+              labelText: 'Enter your message',
+            ),
+          ),
+          const SizedBox(height: 8),
+          ElevatedButton(
+            key: const Key('sendButton'),
+            onPressed: _sendMessage,
+            child: const Text('Send'),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                key: const Key('status200Button'),
+                onPressed: () => _checkStatus(200),
+                child: const Text('200 OK'),
+              ),
+              ElevatedButton(
+                key: const Key('status404Button'),
+                onPressed: () => _checkStatus(404),
+                child: const Text('404 Not Found'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: _messages.isEmpty
+                ? const Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Text('No messages yet'),
+                      Text('Send your first message to get started!'),
+                    ],
+                  ),
+                ): ListView.builder(
+                    itemCount: _messages.length,
+                    itemBuilder: (context, index) {
+                      final message = _messages[index];
+                      return ListTile(
+                        title: Text(message.username),
+                        subtitle: Text(message.content),
+                      );
+                    },
+                  ),
+          ),
+          
+        ],
+      ),
+    ),
+  );
+}
+
+
+
+}
+
+
+
+

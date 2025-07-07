@@ -76,7 +76,7 @@
           if (!apiResponse.success || apiResponse.data == null) {
           throw ApiException(apiResponse.error ?? 'Unknown error');
         }
-          return apiResponse.data!.take(1).toList();
+          return apiResponse.data!;
         } on SocketException {
           throw NetworkException('No internet connection');
         } on TimeoutException {
@@ -197,33 +197,33 @@
 }
 
 
-      // Get HTTP status information
-      Future<HTTPStatusResponse> getHTTPStatus(int statusCode) async {
-        // TODO: Implement getHTTPStatus
-        // Make GET request to '$baseUrl/api/status/$statusCode'
-        // Use _handleResponse to parse response
-        // Extract HTTPStatusResponse from ApiResponse.data
-        try {
-          final response = await _client.get(
-            Uri.parse('$baseUrl/api/status/$statusCode'),
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
-          );
-          final apiResponse = _handleResponse<ApiResponse<HTTPStatusResponse>> (
-              response,
-            (json) => ApiResponse<HTTPStatusResponse>(
-              success: json['success'],
-              data: HTTPStatusResponse.fromJson(json['data']),
-              error: json['error'],
-            ), // converts json object to the list
-          );
-          return apiResponse.data!;
-        } catch(e) {
-         throw ApiException('Client error occurred'); 
+        // Get HTTP status information
+        Future<HTTPStatusResponse> getHTTPStatus(int statusCode) async {
+          // TODO: Implement getHTTPStatus
+          // Make GET request to '$baseUrl/api/status/$statusCode'
+          // Use _handleResponse to parse response
+          // Extract HTTPStatusResponse from ApiResponse.data
+          try {
+            final response = await _client.get(
+              Uri.parse('$baseUrl/api/status/$statusCode'),
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+              },
+            );
+            final apiResponse = _handleResponse<ApiResponse<HTTPStatusResponse>> (
+                response,
+              (json) => ApiResponse<HTTPStatusResponse>(
+                success: json['success'],
+                data: HTTPStatusResponse.fromJson(json['data']),
+                error: json['error'],
+              ), // converts json object to the list
+            );
+            return apiResponse.data!;
+          } catch(e) {
+          throw ApiException('Client error occurred'); 
+          }
         }
-      }
 
       // Health check
       Future<Map<String, dynamic>> healthCheck() async {
