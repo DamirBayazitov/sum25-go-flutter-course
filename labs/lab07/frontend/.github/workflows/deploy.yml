@@ -1,6 +1,9 @@
 name: Deploy Flutter Web to GitHub Pages
 
 on:
+  push:
+    branches:
+      - lab07-bayazitov-damir
   # TODO: Add condition
     
   workflow_dispatch:
