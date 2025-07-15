@@ -4,7 +4,8 @@ on:
   push:
     branches:
       - lab07-bayazitov-damir
-    
+
+  workflow_dispatch:
 
 jobs:
   build:
@@ -26,7 +27,7 @@ jobs:
 
 
       - name: Build Flutter Web
-        run: cd labs/lab07/frontend && flutter build web
+        run: cd labs/lab07/frontend && flutter build web --base-href /sum25-go-flutter-course/
 
 
       - name: Deploy to GitHub Pages
