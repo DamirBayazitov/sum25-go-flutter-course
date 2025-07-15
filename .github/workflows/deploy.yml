@@ -22,11 +22,11 @@ jobs:
 
 
       - name: Install dependencies
-        run: flutter pub get
+        run: cd labs/lab07/frontend && flutter pub get
 
 
       - name: Build Flutter Web
-        run: flutter build web
+        run: cd labs/lab07/frontend && flutter build web
 
 
       - name: Deploy to GitHub Pages

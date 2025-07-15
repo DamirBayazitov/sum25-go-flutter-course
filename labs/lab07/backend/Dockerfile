@@ -10,7 +10,7 @@ COPY . .
 # Build the Go binary
 RUN go build -o main .
 
-# Final image
+# Final imagedock
 FROM alpine:latest
 
 # Set working directory
